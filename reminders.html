@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Reminders</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf8f4;
+    --surface: #ffffff;
+    --surface2: #f3f0ea;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --accent: #c0664a;
+    --accent-light: #f9ede9;
+    --text: #1a1714;
+    --muted: #8a8279;
+    --checked: #b8b0a5;
+    --green: #4a8c6a;
+    --green-light: #eaf3ed;
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2.5rem 1rem 4rem;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .greeting {
+    font-family: 'Lora', serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'Lora', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.15;
+  }
+
+  .date-line {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    margin-top: 12px;
+  }
+
+  .stat {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .stat span {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .section {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    padding-left: 2px;
+  }
+
+  .list-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--surface2); }
+
+  .checkbox {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border2);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .checkbox.checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .checkbox.checked::after {
+    content: '';
+    width: 6px; height: 10px;
+    border: 2px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+  }
+
+  .item-text {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    outline: none;
+    background: transparent;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    cursor: text;
+    line-height: 1.4;
+    min-width: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .item-text.checked-text {
+    color: var(--checked);
+    text-decoration: line-through;
+    text-decoration-color: var(--checked);
+  }
+
+  .delete-btn {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .item:hover .delete-btn { opacity: 1; }
+  .delete-btn:hover { background: #fde8e4; color: var(--accent); }
+
+  .add-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .add-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-weight: 300;
+    line-height: 1;
+    padding-bottom: 1px;
+  }
+
+  .add-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: transparent;
+  }
+
+  .add-input::placeholder { color: var(--muted); font-weight: 300; }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+    justify-content: flex-end;
+  }
+
+  .btn-clear {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-clear:hover { background: #fde8e4; color: var(--accent); border-color: #e8c4bc; }
+
+  .empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+    font-family: 'Lora', serif;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  .all-done {
+    text-align: center;
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--green);
+    font-size: 14px;
+    margin-top: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .all-done.visible { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <p class="greeting">Good to see you</p>
+    <h1>My Reminders</h1>
+    <p class="date-line" id="date-line"></p>
+    <div class="stats-bar">
+      <p class="stat"><span id="stat-total">0</span> items</p>
+      <p class="stat"><span id="stat-done">0</span> completed</p>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  </header>
+
+  <div class="section">
+    <p class="section-label">To Remember</p>
+    <div class="list-card">
+      <div id="items-list"></div>
+      <div class="add-row">
+        <div class="add-icon">+</div>
+        <input class="add-input" id="add-input" type="text" placeholder="Add a reminder..." maxlength="200" />
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-clear" onclick="clearCompleted()">Clear completed</button>
+  </div>
+
+  <p class="all-done" id="all-done">All caught up! ✓</p>
+</div>
+
+<script>
+const STORAGE_KEY = 'my-reminders-v1';
+let items = [];
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) items = JSON.parse(raw);
+  } catch(e) { items = []; }
+  if (items.length === 0) {
+    items = [
+      { id: Date.now()+1, text: 'Welcome! Edit or delete this item.', checked: false },
+      { id: Date.now()+2, text: 'Click + to add new reminders.', checked: false },
+    ];
+  }
+  render();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+
+function render() {
+  const list = document.getElementById('items-list');
+  const unchecked = items.filter(i => !i.checked);
+  const checked = items.filter(i => i.checked);
+  const ordered = [...unchecked, ...checked];
+
+  if (ordered.length === 0) {
+    list.innerHTML = '<div class="empty-state">Nothing here yet — add a reminder below</div>';
+  } else {
+    list.innerHTML = ordered.map(item => `
+      <div class="item" id="item-${item.id}">
+        <div class="checkbox ${item.checked ? 'checked' : ''}" onclick="toggle(${item.id})"></div>
+        <div class="item-text ${item.checked ? 'checked-text' : ''}"
+          contenteditable="true"
+          onblur="editItem(${item.id}, this.innerText)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        >${escHtml(item.text)}</div>
+        <button class="delete-btn" onclick="deleteItem(${item.id})" title="Delete">×</button>
+      </div>
+    `).join('');
+  }
+
+  const total = items.length;
+  const done = items.filter(i => i.checked).length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-done').textContent = done;
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+  const allDone = document.getElementById('all-done');
+  if (total > 0 && done === total) allDone.classList.add('visible');
+  else allDone.classList.remove('visible');
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggle(id) {
+  const item = items.find(i => i.id === id);
+  if (item) { item.checked = !item.checked; save(); render(); }
+}
+
+function deleteItem(id) {
+  items = items.filter(i => i.id !== id);
+  save(); render();
+}
+
+function editItem(id, newText) {
+  const item = items.find(i => i.id === id);
+  const trimmed = newText.trim();
+  if (item && trimmed) { item.text = trimmed; save(); }
+  else if (item && !trimmed) { deleteItem(id); }
+}
+
+function clearCompleted() {
+  items = items.filter(i => !i.checked);
+  save(); render();
+}
+
+function addItem(text) {
+  text = text.trim();
+  if (!text) return;
+  items.unshift({ id: Date.now(), text, checked: false });
+  save(); render();
+}
+
+document.getElementById('add-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    addItem(this.value);
+    this.value = '';
+  }
+});
+
+function setDate() {
+  const d = new Date();
+  document.getElementById('date-line').textContent = d.toLocaleDateString('en-US', {
+    weekday:'long', year:'numeric', month:'long', day:'numeric'
+  });
+}
+
+setDate();
+load();
+</script>
+</body>
+</html>
